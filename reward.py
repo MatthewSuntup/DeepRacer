@@ -31,8 +31,8 @@ def reward_function(params):
     bc_heading = math.degrees(math.atan2(point_c[1]-point_b[1], point_c[0]-point_b[0]))
     
     # Calculate distance to waypoints
-    ab_dist = np.linalg.norm([x,y]-point_b)
-    ac_dist = np.linalg.norm([x,y]-point_c)
+    ab_dist = np.linalg.norm([x-point_b[0],y-point_b[1]])
+    ac_dist = np.linalg.norm([x-point_c[0],y-point_c[1]])
 
     # Weigh next waypoint proportionally with distance
     ab_weight = ab_dist * 0.7
