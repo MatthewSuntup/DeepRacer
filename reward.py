@@ -4,6 +4,7 @@ def reward_function(params):
     '''
     
     import math
+    import numpy as np
     
     # Read input parameters
     all_wheels_on_track = params['all_wheels_on_track']
@@ -30,9 +31,9 @@ def reward_function(params):
     bc_heading = math.degrees(math.atan2(point_c[1]-point_b[1], point_c[0]-point_b[0]))
     
     # Calculate distance to waypoints
-    ab_dist = math.dist([x,y],point_b)
-    ac_dist = math.dist([x,y],point_c)
-    
+    ab_dist = np.linalg.norm([x,y]-point_b)
+    ac_dist = np.linalg.norm([x,y]-point_c)
+
     # Weigh next waypoint proportionally with distance
     ab_weight = ab_dist * 0.7
     
@@ -62,8 +63,8 @@ def reward_function(params):
     
     # Calculate heading error
     err_heading = abs(goal_heading-heading)
-    if err_heading > 180:
-        err_heading = 360 - err_heading
+    if err_heading >= 180:
+        err_heading = 180 - err_heading
     
     # Apply reward function to heading error
     reward = -1/(180**2) *err_heading**2 + 1
