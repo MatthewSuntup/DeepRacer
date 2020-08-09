@@ -52,7 +52,7 @@ def reward_function(params):
     elif bc_heading > ab_heading and bc_heading - ab_heading > 180:
         heading_offset = 180-bc_heading
         bc_heading = -180
-        ab_heading = ab_heading + headinheading_offset
+        ab_heading = ab_heading + heading_offset
         heading = heading + heading_offset
         if heading > 180:
             heading = 360 - heading
