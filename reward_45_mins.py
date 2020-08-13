@@ -1,9 +1,5 @@
 def reward_function(params):
 
-    '''
-    Example of rewarding the agent to follow center line
-    '''
-
     import math
 
     # Read input parameters
@@ -17,6 +13,13 @@ def reward_function(params):
     waypoints = params['waypoints']
     x = params['x']
     y = params['y']
+    closest_waypoints = params['closest_waypoints']
+    is_offtrack = params['is_offtrack']
+
+    # Strongly discourage going off track
+    if is_offtrack:
+        reward = 1e-3
+        return float(reward)
 
     # Calculate 3 markers that are at varying distances away from the center line
     marker_1 = 0.1 * track_width
@@ -51,7 +54,7 @@ def reward_function(params):
     point_future = waypoints[min(len(waypoints)-1,closest_waypoints[1]+future_step)]
 
     # Calculate headings to waypoints
-    heading_current = math.degrees(math.atan2(point_prev[1]-point_next[1], point_prev[0] - point_next[0]))
+    heading_current = math.degrees(math.atan2(point_prev[1]-point_next[1], point_prev[0]-point_next[0]))
     heading_future = math.degrees(math.atan2(point_prev[1]-point_future[1], point_prev[0]-point_future[0]))
 
     # Circular Heading Calculations
