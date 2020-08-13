@@ -31,9 +31,12 @@ def reward_function(params):
     
     # Give higher reward if the car is closer to centre line and vice versa
     # 0 if you're on edge of track, 1 if you're centre of track
-    reward = 1 - (distance_from_center/(track_width/2))**(1/2) + progress/steps
+    reward = 1 - (distance_from_center/(track_width/2))**(1/4) + progress/steps
 
     if abs(steering_angle) < 10 and speed > 2:
-        reward += (speed/max_speed)**2
+        reward += 0.5
+
+    if abs(steering_angle) > 10 and speed < 2:
+        reward += 0.5
       
     return float(reward)
