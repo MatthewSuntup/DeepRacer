@@ -64,7 +64,7 @@ def reward_function(params):
     # 0 if you're on edge of track, 1 if you're centre of track
     reward = 1 - (distance_from_center/(track_width/2))**(1/4) + progress/steps
 
-    diff_heading, dist_future = identify_corner(waypoints, i, FUTURE_STEP)
+    diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, FUTURE_STEP)
 
     go_fast = True
 
@@ -75,7 +75,7 @@ def reward_function(params):
         if dist_future < DIST_THRESHOLD:
             go_fast = True
         else:
-            diff_heading_mid, dist_mid = identify_corner(waypoints, i, MID_STEP)
+            diff_heading_mid, dist_mid = identify_corner(waypoints, closest_waypoints, MID_STEP)
 
             if diff_heading_mid < TURN_THRESHOLD:
                 go_fast = True
