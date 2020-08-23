@@ -88,10 +88,26 @@ print("DIST_THRESHOLD: %.1f" % (DIST_THRESHOLD))
 waypoints = waypoints[:,2:4]
 
 # Plot waypoints
-fast_colour = '#ff7f0e'
-slow_colour = '#1f77b4'
-bonus_fast_colour = '#ff460e'
-bonus_slow_colour = '#4e1fb4'
+
+# TODO: use an enumeration (in the actual reward script too)
+fast_colour = 0 # '#ff7f0e'
+slow_colour = 1 #'#1f77b4'
+bonus_fast_colour =  2 #'#ff460e'
+bonus_slow_colour = 3 #'#4e1fb4'
+
+color_dict = {0:'#ff7f0e', 1:'#1f77b4', 2:'#ff460e', 3:'#4e1fb4'}
+label_dict = {0:'Fast', 1:'Slow', 2:'Bonus Fast', 3:'Bonus Slow'}
+
+fast_points = []
+slow_points = []
+bonus_fast_points = []
+bonus_slow_points = []
+
+
+fig, ax = plt.subplots()
+# ax.legend(handles=legend_elements)
+colours = []
+
 for i in range(len(waypoints)):
 
     # Simulate input parameters in race
@@ -99,15 +115,25 @@ for i in range(len(waypoints)):
     progress = i/len(waypoints)
 
 
-    diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, FUTURE_STEP)
+    if i/len(waypoints) > PROGRESS_THRESHOLD/100:
+        color = bonus_slow_colour
+        colours.append(color)
+        # bonus_slow_points.append(waypoints[i])
+        continue
+
+    diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, FUTURE_STEP)    
 
     if diff_heading < TURN_THRESHOLD:
         # If there's no corner encourage going faster
         color = fast_colour
+        colours.append(color)
+        # fast_points.append(waypoints[i])
     else:
         if dist_future < DIST_THRESHOLD:
             # If there is a corner and it's close encourage going slower
             color = slow_colour
+            colours.append(color)
+            # slow_points.append(waypoints[i])
         else:
             # If the corner is far away, re-assess closer points
             diff_heading_mid, dist_mid = identify_corner(waypoints, closest_waypoints, MID_STEP)
@@ -115,14 +141,23 @@ for i in range(len(waypoints)):
             if diff_heading_mid < TURN_THRESHOLD:
                 # If there's no corner encourage going faster
                 color = bonus_fast_colour
+                colours.append(color)
+                # bonus_fast_points.append(waypoints[i])
             else:
                 # If there is a corner and it's close encourage going slower
                 color = slow_colour
+                colours.append(color)
+                # bonus_slow_points.append(waypoints[i])
 
-    if i/len(waypoints) > PROGRESS_THRESHOLD/100:
-        color = bonus_slow_colour
-
-    plt.scatter(waypoints[i][0], waypoints[i][1], c=color)
+    # plt.scatter(waypoints[i][0], waypoints[i][1], c=color)
     # print("Waypoint " + str(i) + ": " + str(waypoints[i]))
+
+
+# Set the custom colours appropriately
+for g in np.unique(colours):
+    ix = np.where(colours==g)
+    ax.scatter(waypoints[ix,0], waypoints[ix,1], c=color_dict[g], label=label_dict[g])
+ax.legend(title="Speed")
+ax.set_title("Rewarded Speeds - %s" % track_name)
 
 plt.show()
