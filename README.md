@@ -1,4 +1,4 @@
-# DeepRacer
+# <img src="img/deepracer.png?raw=true" height="70">
 
 <p align = center>
   <img src="https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white"/>
@@ -12,7 +12,11 @@
 ## About
 Reinforcement learning reward function for [AWS DeepRacer](https://aws.amazon.com/deepracer/).
 
+<p align="center">
+<img src="img/race.png" width="70%">
+</p>
+
 ## Team
-- Ashan Abey
-- Georgia Markham
-- Matthew Suntup
+- [Ashan Abey](https://github.com/ashton3000)
+- [Georgia Markham](https://github.com/georgiemarkham)
+- [Matthew Suntup](https://github.com/MatthewSuntup)
