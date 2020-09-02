@@ -13,6 +13,7 @@ def reward_function(params):
     FUTURE_STEP = 6
     TURN_THRESHOLD = 6     # degrees
     SPEED_THRESHOLD = 1.5   # m/s
+    STEERING_THRESHOLD = 10 # degrees
 
 
     def identify_corner(waypoints, closest_waypoints, future_step):
@@ -61,6 +62,7 @@ def reward_function(params):
     is_offtrack = params['is_offtrack']
     progress = params['progress']
     speed = params['speed']
+    steering_angle = params['steering_angle']
     steps = params['steps']
     track_width = params['track_width']
     waypoints = params['waypoints']
@@ -77,7 +79,7 @@ def reward_function(params):
     go_fast = select_speed(waypoints, closest_waypoints, FUTURE_STEP, progress)
 
     # Implement speed incentive
-    if go_fast and speed > SPEED_THRESHOLD:
+    if go_fast and speed > SPEED_THRESHOLD and abs(steering_angle) < STEERING_THRESHOLD:
         reward += 0.5
 
     elif not go_fast and speed < SPEED_THRESHOLD:
