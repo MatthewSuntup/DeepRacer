@@ -1,10 +1,12 @@
+import math
 import matplotlib.pyplot as plt
 import numpy as np
-import math
+from matplotlib.widgets import Slider, Button
 
-FUTURE_STEP = 7
+
+FUTURE_STEP = 9
 MID_STEP = 4
-TURN_THRESHOLD = 10    # degrees
+TURN_THRESHOLD = 10   # degrees
 DIST_THRESHOLD = 1.2    # metres
 PROGRESS_THRESHOLD = 75 # %
 
@@ -71,7 +73,8 @@ def identify_corner(waypoints, closest_waypoints, future_step):
 
 
 # Track Name from Tracks List
-track_name = "ChampionshipCup2019_track"
+# track_name = "ChampionshipCup2019_track"
+track_name = "Spain_track"
 # Location of tracks folder
 absolute_path = "."
 # Get waypoints from numpy file
@@ -115,11 +118,11 @@ for i in range(len(waypoints)):
     progress = i/len(waypoints)
 
 
-    if i/len(waypoints) > PROGRESS_THRESHOLD/100:
-        color = bonus_slow_colour
-        colours.append(color)
-        # bonus_slow_points.append(waypoints[i])
-        continue
+    # if i/len(waypoints) > PROGRESS_THRESHOLD/100:
+    #     color = bonus_slow_colour
+    #     colours.append(color)
+    #     # bonus_slow_points.append(waypoints[i])
+    #     continue
 
     diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, FUTURE_STEP)    
 
@@ -129,25 +132,28 @@ for i in range(len(waypoints)):
         colours.append(color)
         # fast_points.append(waypoints[i])
     else:
-        if dist_future < DIST_THRESHOLD:
-            # If there is a corner and it's close encourage going slower
-            color = slow_colour
-            colours.append(color)
-            # slow_points.append(waypoints[i])
-        else:
-            # If the corner is far away, re-assess closer points
-            diff_heading_mid, dist_mid = identify_corner(waypoints, closest_waypoints, MID_STEP)
+        color = slow_colour
+        colours.append(color)
 
-            if diff_heading_mid < TURN_THRESHOLD:
-                # If there's no corner encourage going faster
-                color = bonus_fast_colour
-                colours.append(color)
-                # bonus_fast_points.append(waypoints[i])
-            else:
-                # If there is a corner and it's close encourage going slower
-                color = slow_colour
-                colours.append(color)
-                # bonus_slow_points.append(waypoints[i])
+        # if dist_future < DIST_THRESHOLD:
+        #     # If there is a corner and it's close encourage going slower
+        #     color = slow_colour
+        #     colours.append(color)
+        #     # slow_points.append(waypoints[i])
+        # else:
+        #     # If the corner is far away, re-assess closer points
+        #     diff_heading_mid, dist_mid = identify_corner(waypoints, closest_waypoints, MID_STEP)
+
+        #     if diff_heading_mid < TURN_THRESHOLD:
+        #         # If there's no corner encourage going faster
+        #         color = bonus_fast_colour
+        #         colours.append(color)
+        #         # bonus_fast_points.append(waypoints[i])
+        #     else:
+        #         # If there is a corner and it's close encourage going slower
+        #         color = slow_colour
+        #         colours.append(color)
+        #         # bonus_slow_points.append(waypoints[i])
 
     # plt.scatter(waypoints[i][0], waypoints[i][1], c=color)
     # print("Waypoint " + str(i) + ": " + str(waypoints[i]))
@@ -157,7 +163,24 @@ for i in range(len(waypoints)):
 for g in np.unique(colours):
     ix = np.where(colours==g)
     ax.scatter(waypoints[ix,0], waypoints[ix,1], c=color_dict[g], label=label_dict[g])
+
+
 ax.legend(title="Speed")
 ax.set_title("Rewarded Speeds - %s" % track_name)
+ax.set_aspect('equal')
+
+TURN_DELTA = 0.5; 
+# sTurnThresh = Slider(ax, 'Turn Threshold', 5, 15, valinit=TURN_THRESHOLD, valstep=TURN_DELTA)
+
+def update(val):
+    print(val)
+    # amp = samp.val
+    # freq = sTurnThresh.val
+    # l.set_ydata(amp*np.sin(2*np.pi*freq*t))
+    # fig.canvas.draw_idle()
+
+
+# sTurnThresh.on_changed(update)
+
 
 plt.show()
