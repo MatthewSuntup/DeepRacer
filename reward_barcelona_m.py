@@ -120,5 +120,10 @@ def reward_function(params):
 
     elif not go_fast and speed < SPEED_THRESHOLD:
         reward += 0.5    
-      
+
+    # Implement stay on track incentive
+    if not all_wheels_on_track:
+        reward -= 0.5
+
+    reward = max(reward, 0.0001)
     return float(reward)
