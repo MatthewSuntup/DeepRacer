@@ -12,7 +12,7 @@ def reward_function(params):
     # Parameters for Speed Incentive
     FUTURE_STEP = 6
     TURN_THRESHOLD = 6     # degrees
-    SPEED_THRESHOLD = 1.7   # m/s
+    SPEED_THRESHOLD = 1.8   # m/s
 
     # Parameters for Straightness Incentive
     FUTURE_STEP_STRAIGHT = 8
@@ -20,7 +20,7 @@ def reward_function(params):
     STEERING_THRESHOLD = 10 # degrees
 
     # Parameters for Progress Incentive
-    TOTAL_NUM_STEPS = 700 # (15 steps per second, therefore < 47 secs)
+    TOTAL_NUM_STEPS = 675 # (15 steps per second, therefore < 45 secs)
 
 
     def identify_corner(waypoints, closest_waypoints, future_step):
@@ -61,6 +61,7 @@ def reward_function(params):
 
         return go_fast
 
+
     def select_straight(waypoints, closest_waypoints, future_step):
 
         # Identify if a corner is in the future
@@ -74,6 +75,7 @@ def reward_function(params):
             go_straight = False
 
         return go_straight
+
 
     # Read input parameters
     all_wheels_on_track = params['all_wheels_on_track']
@@ -125,5 +127,5 @@ def reward_function(params):
     if not all_wheels_on_track:
         reward -= 0.5
 
-    reward = max(reward, 0.0001)
+    reward = max(reward, 1e-3)
     return float(reward)
