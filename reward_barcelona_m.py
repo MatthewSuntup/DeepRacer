@@ -11,7 +11,7 @@ def reward_function(params):
     
     # Parameters for Speed Incentive
     FUTURE_STEP = 6
-    TURN_THRESHOLD = 6          # degrees
+    TURN_THRESHOLD_SPEED = 6    # degrees
     SPEED_THRESHOLD_SLOW = 1.8  # m/s
     SPEED_THRESHOLD_FAST = 2    # m/s
 
@@ -53,7 +53,7 @@ def reward_function(params):
         # Identify if a corner is in the future
         diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, future_step)
 
-        if diff_heading < TURN_THRESHOLD:
+        if diff_heading < TURN_THRESHOLD_SPEED:
             # If there's no corner encourage going faster
             go_fast = True
         else:
@@ -68,7 +68,7 @@ def reward_function(params):
         # Identify if a corner is in the future
         diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, future_step)
 
-        if diff_heading < TURN_THRESHOLD:
+        if diff_heading < TURN_THRESHOLD_STRAIGHT:
             # If there's no corner encourage going straighter
             go_straight = True
         else:
@@ -99,15 +99,11 @@ def reward_function(params):
     # 0 if you're on edge of track, 1 if you're centre of track
     reward = 1 - (distance_from_center/(track_width/2))**(1/4) 
 
-    # # Reward how quickly it's progressing through the course
-    # # TODO: Might be better to reward the difference between this value and an 
-    # #       expected minimum rather than the whole thing (so it doesn't dominate
-    # #       but still differentiates between runs)
-    # reward += progress/steps
-
-    # Every 50 steps, if it's ahead of expected position, give large reward
+    # Every 50 steps, if it's ahead of expected position, give reward relative
+    # to how far ahead it is
     if (steps % 50) == 0 and progress/100 > (steps/TOTAL_NUM_STEPS):
-        reward += 5
+        # reward += 2.22 for each second faster than 45s projected
+        reward += progress - (steps/TOTAL_NUM_STEPS)*100
 
     # Implement straightness incentive
     stay_straight = select_straight(waypoints, closest_waypoints, FUTURE_STEP_STRAIGHT)
