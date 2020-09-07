@@ -18,7 +18,7 @@ def reward_function(params):
     # Parameters for Straightness Incentive
     FUTURE_STEP_STRAIGHT = 8
     TURN_THRESHOLD_STRAIGHT = 25    # degrees
-    STEERING_THRESHOLD = 10         # degrees
+    STEERING_THRESHOLD = 11         # degrees
 
     # Parameters for Progress Incentive
     TOTAL_NUM_STEPS = 675 # (15 steps per second, therefore < 45 secs)
@@ -109,13 +109,13 @@ def reward_function(params):
     stay_straight = select_straight(waypoints, closest_waypoints, FUTURE_STEP_STRAIGHT)
 
     if stay_straight and abs(steering_angle) < STEERING_THRESHOLD:
-        reward += 0.2
+        reward += 0.3
 
     # Implement speed incentive
     go_fast = select_speed(waypoints, closest_waypoints, FUTURE_STEP)
 
     if go_fast and speed > SPEED_THRESHOLD_FAST and abs(steering_angle) < STEERING_THRESHOLD:
-        reward += 0.3
+        reward += 2.0
 
     elif not go_fast and speed < SPEED_THRESHOLD_SLOW:
         reward += 0.5    
