@@ -10,13 +10,26 @@
 </p>
 
 ## About
-Reinforcement learning reward function for [AWS DeepRacer](https://aws.amazon.com/deepracer/).
+This README provides an overview of how our team approached the University of Sydney's 2020 [AWS DeepRacer](https://aws.amazon.com/deepracer/) competition. This was a competition run by the School of Computer Science which provided teams with AWS credits to develop and train a DeepRacer model. Over the course of the model's development it was necessary to define an action space, develop a reward function for reinforcement learning, and experiment with various hyper-parameters controlling the underlying 3-layer neural network.
 
-<p align="center">
-<img src="img/race.png" width="70%">
-</p>
-
-## Team
+### Team
 - [Ashan Abey](https://github.com/ashton3000)
 - [Georgia Markham](https://github.com/georgiemarkham)
 - [Matthew Suntup](https://github.com/MatthewSuntup)
+
+<p align="center">
+<img src="img/race.png" width="50%">
+</p>
+
+## Results
+### Qualifier
+#### Track - 2019 DeepRacer Championship Cup
+<p align="center">
+<img src="img/qualifier_results.png" width="70%">
+</p>
+
+### Finals
+#### Track - Circuit de Barcelona-Catalunya
+<p align="center">
+<img src="img/final_results.png" width="70%">
+</p>
