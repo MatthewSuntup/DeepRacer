@@ -1,6 +1,7 @@
 def reward_function(params):
     '''
     Reward function for AWS DeepRacer
+    Used in USYD 2020 Qualifier in the 2019 Championship track
     Team: IndestruciRacer
     Authors: Matthew Suntup, Georgia Markham, Ashan Abey
     August 2020
