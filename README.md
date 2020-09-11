@@ -21,6 +21,17 @@ This README provides an overview of how our team approached the University of Sy
 <img src="img/race.png" width="50%">
 </p>
 
+## Development
+### Qualifier Model
+#### Defining the action space
+The qualifier track was the 2019 DeepRacer Championship Cup track, which is a relatively straightforward circular track with slight turns. We chose an action space with as few actions as possible (to reduce training time) while maintaining what we believed to be necessary actions to complete the track at speed. We chose a maximum speed of 3 m/s, as a result of trial and error racing similar models with 2 and 4 m/s maximum speeds. A "slow" speed option of 1.5 m/s was also chosen allowing the vehicle to achieve intermediate speeds when switching between them. As the turns are not extremely sharp, we limited the steering to 20 degrees, and found it useful to include an intermediate steering angle for smaller corrections.
+
+<p align="center">
+<img src="img/qualifier_action_space.png" width="80%">
+</p>
+
+
+
 ## Results
 ### Qualifier
 #### Track - 2019 DeepRacer Championship Cup
