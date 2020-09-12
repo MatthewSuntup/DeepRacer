@@ -44,7 +44,7 @@ This README provides an overview of how our team approached the University of Sy
 ## Development
 ### Qualifier Model
 #### Defining the action space
-The qualifier track was the 2019 DeepRacer Championship Cup track, which is a relatively straightforward loop with minor turns. We chose an action space with as few actions as possible (to reduce training time) while maintaining what we believed to be necessary actions to complete the track at speed. We chose a maximum speed of 3 m/s, as a result of trial and error racing similar models with 2 and 4 m/s maximum speeds. A "slow" speed option of 1.5 m/s was also chosen allowing the vehicle to achieve intermediate speeds by switching between the two. As the turns are not extremely sharp, we limited the steering to 20 degrees, and found it useful to include an intermediate steering angle for smaller corrections.
+The qualifier track was the 2019 DeepRacer Championship Cup track, which is a relatively straightforward loop with minor turns. We chose an action space with as few actions as possible (to reduce training time) while maintaining what we believed to be necessary actions to complete the track at speed. We chose a maximum speed of 3 m/s as a result of trial and error racing similar models with 2 and 4 m/s maximum speeds. A slower speed of 1.5 m/s was also chosen, allowing the vehicle to achieve intermediate speeds by switching between the two. As the turns are relatively smooth on this track, we limited the steering to 20 degrees, but still found it useful to include an intermediate steering angle for smaller corrections.
 
 <p align="center">
 <img src="img/qualifier_action_space.png" width="80%">
@@ -57,7 +57,7 @@ Initially, we trained the model on the much simpler Oval and Bowtie tracks using
 <img src="img/simple_tracks.png" width=80%>
 </p>
 
-The sub-rewards can be seen in this code snippet from [reward_simple.py](reward/reward_simply.py):
+The sub-rewards can be seen in this code snippet from [reward_simple.py](reward/reward_simple.py):
 
 ```python
   # Strongly discourage going off track
@@ -131,7 +131,7 @@ def identify_corner(waypoints, closest_waypoints, future_step):
   return diff_heading, dist_future
 ```
 
-The above function can be used to identify whether a corner exists at a specified number of waypoints in the future. However, the spacing of waypoints is not constant and looking a constant number of waypoints ahead for a corner can lead to unnecessarily slowing down when a corner is still far away. To mitigate this, a check is done to confirm that the identified corner is within a minimum distance, and if it is further, then the function is run again but looking ahead a smaller number of waypoints.
+The above function can be used to identify whether a corner exists at a specified number of waypoints in the future. However, the spacing of waypoints is not constant and looking a constant number of waypoints ahead for a corner can lead to unnecessarily slowing down when a corner is still far away. To mitigate this, a check is done to confirm that the identified corner is within a minimum distance, and if it is further, then the function is run again but looking ahead a smaller number of waypoints. We only use this to check if a corner is too far away, as the identification of a far away straight almost always meant that the track in-between was also straight due to both our method for identifying corners and the layout of this track.
 ```python
 # Identify if a corner is in the future
 diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, FUTURE_STEP)
@@ -157,10 +157,6 @@ else:
             # If there's no corner encourage going faster
             go_fast = False
 
-# Slow down towards the end of the track
-if progress > PROGRESS_THRESHOLD:
-    go_fast = False
-
 # Implement speed incentive
 if go_fast and speed > SPEED_THRESHOLD:
     reward += 0.5
@@ -183,7 +179,7 @@ Previously, we had only been using the AWS DeepRacer console which provides bare
 However, we found that the fastest way to train a model like this was to first train it with a slow action space until it could reliably complete the course, and then increase the speed of specific actions before training it further to learn how to adapt to the new speeds. Repeating this process allowed us to rapidly improve the race time of the model. The process required significant trial and error to gauge the limits of how much the action space can stably be modified between training. The modifications that were trained along the way (disregarding failed attempts) are shown in this graph:
 
 <p align="center">
-<img src="img/finals_action_space_mods.png" width=80%>
+<img src="img/finals_action_space_mods.png" width=70%>
 </p>
 
 Note that it was most effective to increase the speed of actions associated with slow speed and low steering angles, as these are only used when the vehicle is travelling straight and likely being overly cautious. The action space of the model that was entered into the finals race is shown below:
@@ -238,4 +234,4 @@ In pushing to make the model as fast as possible, the sub-reward incentivising p
        reward += progress - (steps/TOTAL_NUM_STEPS)*100
 ```
 
-The ```TOTAL_NUM_STEPS``` parameter was modified to be slightly less than the time the model was currently achieving multiples by 15 steps per second. By the final model it was set to 675, corresponding to 45s. 
+The ```TOTAL_NUM_STEPS``` parameter was modified to be slightly less than the time the model was currently achieving multiples by 15 steps per second. By the final model it was set to 675, corresponding to 45s.
