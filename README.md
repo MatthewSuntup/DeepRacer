@@ -160,7 +160,7 @@ elif not go_fast and speed < SPEED_THRESHOLD:
     reward += 0.5  
 ```
 #### Tuning Hyperparameters
-Tuning the hyperparameters of the neural network was crucial to ensuring the model was trained in a practical timeframe. Between training sessions, we would evaluate the reward graph and the Amazon Kinesis video stream of the evaluation runs to inform the modification of hyperparameters. Training sessions were between 45 minutes and 3 hours depending on the length of the track, stability of the most recent model, and hyperparameters chosen.
+Tuning the hyperparameters of the neural network was crucial to ensuring the model was trained in a practical timeframe. Between training sessions, we would assess the reward graph and the Amazon Kinesis video stream of the evaluation runs to inform the modification of hyperparameters. Training sessions were between 45 minutes and 3 hours depending on the length of the track, stability of the most recent model, and hyperparameters chosen.
 
 The most significant indicator for tuning was the average percentage completion during evaluation (the red points in the reward graph). These represented how far the car progressed before driving off course during evaluation runs. Early in the training process, it was beneficial to prioritise exploration of the action space through faster learning. To achieve this we use greater values for the learning rate, and reduce the gradient descent batch size and number of epochs. The reward graph below shows an example of an early version of our qualifier model, using training parameters that encourage much faster learning. The large variations in the average percentage completion (during evaluation) are reflective of this approach.
 
@@ -175,21 +175,21 @@ As the model improved and our focus tended towards making minor adjustments to t
 </p>
 
 ### Finals Model
-#### Defining the action space
+#### Redefining the action space
 The finals track was the Circuit de Barcelona-Catalunya track, which consists of many sharp turns. It quickly became evident that our qualifier model would not be suited to the significantly different requirements of this track.
 <p align="center">
 <img src="img/finals_track.png" width=40%>
 </p>
 
-Previously, we had only been using the AWS DeepRacer console which provides barebone customisation options, and enforces a linearly spaced action space. One of the greatest drawbacks of this is the wasted actions involving high speeds and high steering angles (as these are almost never used, unless you set your maximum speed very low). Manually modifying the action space is detailed in Kire Galev's "[AWS DeepRacer Expert Boot Camp](https://www.youtube.com/watch?v=BUMbqn4NqQA&ab_channel=AWSDeepRacerCommunity)", and allows us to initialise the model with a linear space using a low max speed, and then increase the speeds of the actions with lower steering angles. Doing this forms a bell curve shape, which enables us to have less overall actions than otherwise would have been required for this track given a linear action space (thereby reducing training time).
+For the qualifier, we exclusively used the AWS DeepRacer console to setup the action space, however, this only allows for barebone customisation options, enforcing a linear distribution of actions. One of the greatest drawbacks of this is the wasted actions involving high speeds and high steering angles (as these are almost never used, unless the maximum speed is set very low). Manually modifying the action space is detailed in Kire Galev's "[AWS DeepRacer Expert Boot Camp](https://www.youtube.com/watch?v=BUMbqn4NqQA&ab_channel=AWSDeepRacerCommunity)", and allows us to initialise the model with a linear space using a low max speed, and then increase the speeds of the actions with lower steering angles. Doing this forms a bell curve shape, which enables us to have fewer overall actions than a linear action space would have required for this track. The result of this is reduced training time, as the underlying neural network becomes smaller.
 
-However, we found that the fastest way to train a model like this was to first train it with a slow action space until it could reliably complete the course, and then increase the speed of specific actions before training it further to learn how to adapt to the new speeds. Repeating this process allowed us to rapidly improve the race time of the model. The process required significant trial and error to gauge the limits of how much the action space can stably be modified between training. The modifications that were trained along the way (disregarding failed attempts) are shown in this graph:
+We found that it was best to train this model with the slow, linear action space until it could reliably complete the course, and then increase the speed of specific actions before training it further to learn how to adapt to the new speeds. Repeating this process allowed us to rapidly improve the race time of the model. The process required significant trial and error to gauge the limits of how much the action space can stably be modified between training. The modifications that were trained along the way (disregarding reverted attempts) are shown below.
 
 <p align="center">
 <img src="img/finals_action_space_mods.png" width=70%>
 </p>
 
-Note that it was most effective to increase the speed of actions associated with slow speed and low steering angles, as these are only used when the vehicle is travelling straight and likely being overly cautious. The action space of the model that was entered into the finals race is shown below:
+It was most effective to increase the speed of actions associated with slow speed and low steering angles, as these are only used when the vehicle is travelling straight and generally reflected the model being overly cautious. The action space of the model that was entered into the finals race is shown below.
 
 <p align="center">
 <img src="img/finals_action_space.png" width="70%">
@@ -231,14 +231,12 @@ def select_straight(waypoints, closest_waypoints, future_step):
 
     return go_straight
 ```
-In pushing to make the model as fast as possible, the sub-reward incentivising progress was also modified to try and achieve specific targets.
+To push the model to achieve faster lap times, the sub-reward incentivising progress was also modified to try and achieve specific targets. Since, steps occur at a rate of 15Hz (representing each action taken by the model), we can set a ```TOTAL_NUM_STEPS``` parameter to a value corresponding to a specific desired lap time. We would modify this number as the car achieved better lap times, generally setting it to be slightly below that of its previous best lap time. In the final training sessions we were aiming for a 45s lap, and so set this value to 675 steps.
 
 ```python
 # Every 50 steps, if it's ahead of expected position, give reward relative
-   # to how far ahead it is
-   if (steps % 50) == 0 and progress/100 > (steps/TOTAL_NUM_STEPS):
-       # reward += 2.22 for each second faster than 45s projected
-       reward += progress - (steps/TOTAL_NUM_STEPS)*100
+# to how far ahead it is
+if (steps % 50) == 0 and progress/100 > (steps/TOTAL_NUM_STEPS):
+    # reward += 2.22 for each second faster than 45s projected
+    reward += progress - (steps/TOTAL_NUM_STEPS)*100
 ```
-
-The ```TOTAL_NUM_STEPS``` parameter was modified to be slightly less than the time the model was currently achieving multiples by 15 steps per second. By the final model it was set to 675, corresponding to 45s.
