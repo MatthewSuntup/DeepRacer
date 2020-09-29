@@ -29,16 +29,16 @@ This README provides an overview of how our team approached the University of Sy
   - [Finals Model](#Finals-Model)
 
 ## Results
-### Qualifier (1st Place)
-#### Track - 2019 DeepRacer Championship Cup
-<p align="center">
-<img src="img/qualifier_results.png" width="70%">
-</p>
-
-### Finals (1st Place)
+### USYD 2020 Finals (1st Place)
 #### Track - Circuit de Barcelona-Catalunya
 <p align="center">
 <img src="img/final_results.png" width="70%">
+</p>
+
+### USYD 2020 Qualifier (1st Place)
+#### Track - 2019 DeepRacer Championship Cup
+<p align="center">
+<img src="img/qualifier_results.png" width="70%">
 </p>
 
 ## Development
@@ -73,10 +73,7 @@ The sub-rewards can be seen in this code snippet from [reward_simple.py](reward/
   if abs(steering_angle) < 10 and speed > 2:
       reward += speed/max_speed
 ```
-Note that we chose to add sub-rewards rather than multiply them, based on the experience shared by Daniel Gonzalez in "[An Advanced Guide to AWS DeepRacer](https://towardsdatascience.com/an-advanced-guide-to-aws-deepracer-2b462c37eea)".
-
-
-
+Note that we chose to add sub-rewards rather than multiply them, based on the experience of Daniel Gonzalez shared in "[An Advanced Guide to AWS DeepRacer](https://towardsdatascience.com/an-advanced-guide-to-aws-deepracer-2b462c37eea)".
 
 We realised that a linear incentive for staying near the centre of the track would be limiting for the vehicle when it would be faster to "cut" the curvature of a turn. So the linear centreline sub-reward was replaced by a quadratic one, which meant the reward was less sensitive to small movements away from the centreline:
 
@@ -97,67 +94,65 @@ Once the model was demonstrating a basic ability to follow the simple tracks, we
 <img src="img/qualifier_track.png" width=40%>
 </p>
 
-A noticeable sticking point that the model ran into was an inability to take the North-West corner at high speeds (this track is traversed anti-clockwise). Often it would approach the turn too quickly and be unable to position itself appropriately in time to take the turn successfully, an issue which we occasionally observed on other turns as well.  To address this, we implemented a method of detecting corners ahead of the vehicle using waypoint information and incentivised going slower in response to future corners.
+A noticeable sticking point that the model ran into was an inability to take the North-West corner at high speeds (note this track is traversed anti-clockwise). Often it would approach the turn too quickly and be unable to position itself appropriately in time to take the turn successfully, an issue which we occasionally observed on other turns as well.  To address this, we implemented a method of detecting corners ahead of the vehicle using waypoint information and incentivised going slower in response to future corners.
 
 ```python
 def identify_corner(waypoints, closest_waypoints, future_step):
 
-  # Identify next waypoint and further waypoint
-  point_prev = waypoints[closest_waypoints[0]]
-  point_next = waypoints[closest_waypoints[1]]
-  point_future = waypoints[min(len(waypoints)-1,closest_waypoints[1]+future_step)]
+    # Identify next waypoint and a further waypoint
+    point_prev = waypoints[closest_waypoints[0]]
+    point_next = waypoints[closest_waypoints[1]]
+    point_future = waypoints[min(len(waypoints)-1,closest_waypoints[1]+future_step)]
 
-  # Calculate headings to waypoints
-  heading_current = math.degrees(math.atan2(point_prev[1]-point_next[1], point_prev[0] - point_next[0]))
-  heading_future = math.degrees(math.atan2(point_prev[1]-point_future[1], point_prev[0]-point_future[0]))
+    # Calculate headings to waypoints
+    heading_current = math.degrees(math.atan2(point_prev[1]-point_next[1], point_prev[0] - point_next[0]))
+    heading_future = math.degrees(math.atan2(point_prev[1]-point_future[1], point_prev[0]-point_future[0]))
 
-  # Circular Heading Calculations (to ensure the )
-  if heading_current > heading_future and heading_current - heading_future > 180:
-      heading_offset = 180-heading_current
-      heading_current = -180
-      heading_future += heading_offset
+    # Calculate the difference between the headings
+    diff_heading = abs(heading_current-heading_future)
 
-  elif heading_future > heading_current and heading_future - heading_current > 180:
-      heading_offset = 180-heading_future
-      heading_future = -180
-      heading_current += heading_offset
+    # Check we didn't choose the reflex angle
+    if diff_heading > 180:
+        diff_heading = 360 - diff_heading
 
-  # Calculate the difference between the headings
-  diff_heading = abs(heading_current-heading_future)
+    # Calculate distance to further waypoint
+    dist_future = np.linalg.norm([point_next[0]-point_future[0],point_next[1]-point_future[1]])  
 
-  # Calculate distance to waypoints
-  dist_future = np.linalg.norm([point_next[0]-point_future[0],point_next[1]-point_future[1]])  
-
-  return diff_heading, dist_future
+    return diff_heading, dist_future
 ```
 
-The above function can be used to identify whether a corner exists at a specified number of waypoints in the future. However, the spacing of waypoints is not constant and looking a constant number of waypoints ahead for a corner can lead to unnecessarily slowing down when a corner is still far away. To mitigate this, a check is done to confirm that the identified corner is within a minimum distance, and if it is further, then the function is run again but looking ahead a smaller number of waypoints. We only use this to check if a corner is too far away, as the identification of a far away straight almost always meant that the track in-between was also straight due to both our method for identifying corners and the layout of this track.
+The `identify_corner()` function can be used to identify whether a corner exists between the car and a specified waypoint in the future. However, the spacing of waypoints is not consistent, so searching a constant number of waypoints ahead for a corner may cause the car to slow down unnecessarily when a corner is still far away. To mitigate this, after identifying a corner we check if it is within a minimum distance of the car. If not, the function is called again for a closer waypoint. We only use this method to check if a corner is too far away, as the identification of a far away straight almost always meant that the track prior was also straight due to both our method for identifying corners and the layout of this track.
+
 ```python
-# Identify if a corner is in the future
-diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, FUTURE_STEP)
+def select_speed(waypoints, closest_waypoints, future_step, mid_step):
 
-go_fast = True
+    # Identify if a corner is in the future
+    diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, future_step)
 
-if diff_heading < TURN_THRESHOLD:
-    # If there's no corner encourage going faster
-    go_fast = True
-
-else:
-    if dist_future < DIST_THRESHOLD:
-        # If there is a corner and it's close encourage going slower
-        go_fast = False
+    if diff_heading < TURN_THRESHOLD:
+        # If there's no corner encourage going faster
+        go_fast = True
     else:
-        # If the corner is far away, re-assess closer points
-        diff_heading_mid, dist_mid = identify_corner(waypoints, closest_waypoints, MID_STEP)
-
-        if diff_heading_mid < TURN_THRESHOLD:
+        if dist_future < DIST_THRESHOLD:
             # If there is a corner and it's close encourage going slower
-            go_fast = True
-        else:
-            # If there's no corner encourage going faster
             go_fast = False
+        else:
+            # If the corner is far away, re-assess closer points
+            diff_heading_mid, dist_mid = identify_corner(waypoints, closest_waypoints, mid_step)
 
+            if diff_heading_mid < TURN_THRESHOLD:
+                # If there's no corner encourage going faster
+                go_fast = True
+            else:
+                # If there is a corner and it's close encourage going slower
+                go_fast = False
+
+    return go_fast
+```
+```python
 # Implement speed incentive
+go_fast = select_speed(waypoints, closest_waypoints, FUTURE_STEP, MID_STEP)
+
 if go_fast and speed > SPEED_THRESHOLD:
     reward += 0.5
 
