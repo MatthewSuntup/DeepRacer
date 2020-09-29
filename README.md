@@ -160,7 +160,19 @@ elif not go_fast and speed < SPEED_THRESHOLD:
     reward += 0.5  
 ```
 #### Tuning Hyperparameters
+Tuning the hyperparameters of the neural network was crucial to ensuring the model was trained in a practical timeframe. Between training sessions, we would evaluate the reward graph and the Amazon Kinesis video stream of the evaluation runs to inform the modification of hyperparameters. Training sessions were between 45 minutes and 3 hours depending on the length of the track, stability of the most recent model, and hyperparameters chosen.
 
+The most significant indicator for tuning was the average percentage completion during evaluation (the red points in the reward graph). These represented how far the car progressed before driving off course during evaluation runs. Early in the training process, it was beneficial to prioritise exploration of the action space through faster learning. To achieve this we use greater values for the learning rate, and reduce the gradient descent batch size and number of epochs. The reward graph below shows an example of an early version of our qualifier model, using training parameters that encourage much faster learning. The large variations in the average percentage completion (during evaluation) are reflective of this approach.
+
+<p align="center">
+<img src="img/qualifier_reward_graph_fast.png" width=50%>
+</p>
+
+As the model improved and our focus tended towards making minor adjustments to the driving style to benefit speed and reliability, we sought to stabilise learning. This was primarily achieved by reducing the learning rate, and increasing the gradient descent batch size, number of epochs, and number of experience episodes between each policy-updating iteration. The reward graph below is taken from one of the last training sessions on our qualifier model, and demonstrates more stable learning.
+
+<p align="center">
+<img src="img/qualifier_reward_graph_stable.png" width=50%>
+</p>
 
 ### Finals Model
 #### Defining the action space
@@ -180,7 +192,7 @@ However, we found that the fastest way to train a model like this was to first t
 Note that it was most effective to increase the speed of actions associated with slow speed and low steering angles, as these are only used when the vehicle is travelling straight and likely being overly cautious. The action space of the model that was entered into the finals race is shown below:
 
 <p align="center">
-<img src="img/finals_action_space.png" width="80%">
+<img src="img/finals_action_space.png" width="70%">
 </p>
 
 #### Iterating the reward function
