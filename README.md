@@ -50,7 +50,7 @@ The qualifier track was the 2019 DeepRacer Championship Cup track, which is a re
 <img src="img/qualifier_action_space.png" width="80%">
 </p>
 
-#### Iterating the reward function
+#### Developing the reward function
 Initially, we trained the model on the much simpler Oval and Bowtie tracks using a centreline-following reward function with an incentive for faster speeds while travelling straight.
 
 <p align="center">
@@ -159,6 +159,15 @@ if go_fast and speed > SPEED_THRESHOLD:
 elif not go_fast and speed < SPEED_THRESHOLD:
     reward += 0.5  
 ```
+
+We've now defined multiple parameters for our reward function which will affect when the car is incentivised to go faster or slower. To determine what the best values of these are, it is useful to visualise their effect. Based on the track data provided by *, we developed our own visualisation tool ([qualifier_planner.py](planning/qualifier_planner.py)) which identifies regions of the track where the car is rewarded for going faster or slower.
+
+<p align="center">
+<img src="img/qualifier_planner.png" width=80%>
+</p>
+
+The points labelled "Bonus Fast" show the effect of the additional distance check implemented in the `select_speed()` function discussed earlier (i.e. points which would have been marked "Slow" if the distance check was not incorporated). The actual reward function does not differentiate between "Fast" and "Bonus Fast" regions.
+
 #### Tuning Hyperparameters
 Tuning the hyperparameters of the neural network was crucial to ensuring the model was trained in a practical timeframe. Between training sessions, we would assess the reward graph and the Amazon Kinesis video stream of the evaluation runs to inform the modification of hyperparameters. Training sessions were between 45 minutes and 3 hours depending on the length of the track, stability of the most recent model, and hyperparameters chosen.
 
@@ -213,6 +222,11 @@ def select_speed(waypoints, closest_waypoints, future_step):
 
     return go_fast
 ```
+Again we used Python to visualise the application of the speed incentive and determine the parameters (see [final_planner.py](planning/final_planner.py)).
+
+<p align="center">
+<img src="img/finals_speed_planner.png" width=80%>
+</p>
 
 We noticed that since over much of the course, the model was not actively being incentivised to go fast and straight (due to conservative parameters used for identifying corners), some swerving behaviour was emerging. This was addressed with the addition of a sub-reward for keeping steering angles within a bound. The condition for this to be applied used the same ```identify_corner()``` function that the speed sub-reward utilises, but with different parameters leading to the model to be incentivised to keep straight for a larger proportion of the track than when it is incentivised to go fast.
 
@@ -231,7 +245,12 @@ def select_straight(waypoints, closest_waypoints, future_step):
 
     return go_straight
 ```
-To push the model to achieve faster lap times, the sub-reward incentivising progress was also modified to try and achieve specific targets. Since, steps occur at a rate of 15Hz (representing each action taken by the model), we can set a ```TOTAL_NUM_STEPS``` parameter to a value corresponding to a specific desired lap time. We would modify this number as the car achieved better lap times, generally setting it to be slightly below that of its previous best lap time. In the final training sessions we were aiming for a 45s lap, and so set this value to 675 steps.
+
+<p align="center">
+<img src="img/finals_straight_planner.png" width=80%>
+</p>
+
+Finally, to push the model to achieve faster lap times, the sub-reward incentivising progress was also modified to try and achieve specific targets. Since, steps occur at a rate of 15Hz (representing each action taken by the model), we can set a ```TOTAL_NUM_STEPS``` parameter to a value corresponding to a specific desired lap time. We would modify this number as the car achieved better lap times, generally setting it to be slightly below that of its previous best lap time. In the final training sessions we were aiming for a 45 second lap, and so set this value to 675 steps.
 
 ```python
 # Every 50 steps, if it's ahead of expected position, give reward relative
