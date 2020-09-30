@@ -30,21 +30,25 @@ def reward_function(params):
         # Identify next waypoint and a further waypoint
         point_prev = waypoints[closest_waypoints[0]]
         point_next = waypoints[closest_waypoints[1]]
-        point_future = waypoints[min(len(waypoints)-1,closest_waypoints[1]+future_step)]
+        point_future = waypoints[min(len(waypoints) - 1,
+                                     closest_waypoints[1] + future_step)]
 
         # Calculate headings to waypoints
-        heading_current = math.degrees(math.atan2(point_prev[1]-point_next[1], point_prev[0] - point_next[0]))
-        heading_future = math.degrees(math.atan2(point_prev[1]-point_future[1], point_prev[0]-point_future[0]))
+        heading_current = math.degrees(math.atan2(point_prev[1]-point_next[1], 
+                                               point_prev[0] - point_next[0]))
+        heading_future = math.degrees(math.atan2(point_prev[1] - point_future[1], 
+                                               point_prev[0] - point_future[0]))
 
         # Calculate the difference between the headings
-        diff_heading = abs(heading_current-heading_future)
+        diff_heading = abs(heading_current - heading_future)
 
         # Check we didn't choose the reflex angle
         if diff_heading > 180:
             diff_heading = 360 - diff_heading
 
         # Calculate distance to further waypoint
-        dist_future = np.linalg.norm([point_next[0]-point_future[0],point_next[1]-point_future[1]])  
+        dist_future = np.linalg.norm([point_next[0] - point_future[0],
+                                      point_next[1] - point_future[1]])  
 
         return diff_heading, dist_future
 
@@ -52,7 +56,9 @@ def reward_function(params):
     def select_speed(waypoints, closest_waypoints, future_step):
 
         # Identify if a corner is in the future
-        diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, future_step)
+        diff_heading, dist_future = identify_corner(waypoints,
+                                                    closest_waypoints,
+                                                    future_step)
 
         if diff_heading < TURN_THRESHOLD_SPEED:
             # If there's no corner encourage going faster
@@ -67,7 +73,9 @@ def reward_function(params):
     def select_straight(waypoints, closest_waypoints, future_step):
 
         # Identify if a corner is in the future
-        diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, future_step)
+        diff_heading, dist_future = identify_corner(waypoints,
+                                                    closest_waypoints,
+                                                    future_step)
 
         if diff_heading < TURN_THRESHOLD_STRAIGHT:
             # If there's no corner encourage going straighter
@@ -107,15 +115,16 @@ def reward_function(params):
         reward += progress - (steps/TOTAL_NUM_STEPS)*100
 
     # Implement straightness incentive
-    stay_straight = select_straight(waypoints, closest_waypoints, FUTURE_STEP_STRAIGHT)
-
+    stay_straight = select_straight(waypoints, closest_waypoints, 
+                                    FUTURE_STEP_STRAIGHT)
     if stay_straight and abs(steering_angle) < STEERING_THRESHOLD:
         reward += 0.3
 
     # Implement speed incentive
     go_fast = select_speed(waypoints, closest_waypoints, FUTURE_STEP)
 
-    if go_fast and speed > SPEED_THRESHOLD_FAST and abs(steering_angle) < STEERING_THRESHOLD:
+    if go_fast and speed > SPEED_THRESHOLD_FAST 
+               and abs(steering_angle) < STEERING_THRESHOLD:
         reward += 2.0
 
     elif not go_fast and speed < SPEED_THRESHOLD_SLOW:

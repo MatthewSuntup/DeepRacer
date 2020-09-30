@@ -1,7 +1,6 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.widgets import Slider, Button
 
 TRACK_FILE = "Spain_track.npy"
 
@@ -25,21 +24,25 @@ def identify_corner(waypoints, closest_waypoints, future_step):
     # Identify next waypoint and a further waypoint
     point_prev = waypoints[closest_waypoints[0]]
     point_next = waypoints[closest_waypoints[1]]
-    point_future = waypoints[min(len(waypoints)-1,closest_waypoints[1]+future_step)]
+    point_future = waypoints[min(len(waypoints) - 1, 
+                                 closest_waypoints[1] + future_step)]
 
     # Calculate headings to waypoints
-    heading_current = math.degrees(math.atan2(point_prev[1]-point_next[1], point_prev[0] - point_next[0]))
-    heading_future = math.degrees(math.atan2(point_prev[1]-point_future[1], point_prev[0]-point_future[0]))
+    heading_current = math.degrees(math.atan2(point_prev[1]-point_next[1], 
+                                              point_prev[0] - point_next[0]))
+    heading_future = math.degrees(math.atan2(point_prev[1]-point_future[1], 
+                                             point_prev[0]-point_future[0]))
 
     # Calculate the difference between the headings
-    diff_heading = abs(heading_current-heading_future)
+    diff_heading = abs(heading_current - heading_future)
 
     # Check we didn't choose the reflex angle
     if diff_heading > 180:
         diff_heading = 360 - diff_heading
 
     # Calculate distance to further waypoint
-    dist_future = np.linalg.norm([point_next[0]-point_future[0],point_next[1]-point_future[1]])  
+    dist_future = np.linalg.norm([point_next[0] - point_future[0], 
+                                  point_next[1] - point_future[1]])  
 
     return diff_heading, dist_future
 
@@ -47,7 +50,8 @@ def identify_corner(waypoints, closest_waypoints, future_step):
 def select_speed(waypoints, closest_waypoints, future_step):
 
     # Identify if a corner is in the future
-    diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, future_step)
+    diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, 
+                                                future_step)
 
     if diff_heading < TURN_THRESHOLD_SPEED:
         # If there's no corner encourage going faster
@@ -62,7 +66,8 @@ def select_speed(waypoints, closest_waypoints, future_step):
 def select_straight(waypoints, closest_waypoints, future_step):
 
     # Identify if a corner is in the future
-    diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, future_step)
+    diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, 
+                                                future_step)
 
     if diff_heading < TURN_THRESHOLD_STRAIGHT:
         # If there's no corner encourage going straighter
@@ -108,7 +113,8 @@ for i in range(len(waypoints)):
         color = SLOW
         speed_colours.append(color)
 
-    go_straight = select_straight(waypoints, closest_waypoints, FUTURE_STEP_STRAIGHT)
+    go_straight = select_straight(waypoints, closest_waypoints, 
+                                  FUTURE_STEP_STRAIGHT)
     if go_straight:
         color = STRAIGHT
         straight_colours.append(color)
@@ -122,11 +128,11 @@ fig_speed, ax_speed = plt.subplots()
 
 for g in np.unique(speed_colours):
     ix = np.where(speed_colours==g)
-    ax_speed.scatter(waypoints[ix,0], waypoints[ix,1], c=speed_color_dict[g], label=speed_label_dict[g])
+    ax_speed.scatter(waypoints[ix,0], waypoints[ix,1], c=speed_color_dict[g], 
+                     label=speed_label_dict[g])
 
-# ax_speed.legend(title="Speed Incentive")
-ax_speed.legend(loc='lower center', bbox_to_anchor=(0.5,-0.3), ncol=2, fancybox=True, shadow=True)
-# ax_speed.set_title("Rewarded Speeds - Finals Track")
+ax_speed.legend(loc='lower center', bbox_to_anchor=(0.5,-0.3), ncol=2, 
+                fancybox=True, shadow=True)
 ax_speed.set_aspect('equal')
 plt.axis('off')
 
@@ -135,11 +141,11 @@ fig_straight, ax_straight = plt.subplots()
 
 for g in np.unique(straight_colours):
     ix = np.where(straight_colours==g)
-    ax_straight.scatter(waypoints[ix,0], waypoints[ix,1], c=straight_color_dict[g], label=straight_label_dict[g])
+    ax_straight.scatter(waypoints[ix,0], waypoints[ix,1], 
+                        c=straight_color_dict[g], label=straight_label_dict[g])
 
-# ax_straight.legend(title="Straight Incentive")
-ax_straight.legend(loc='lower center', bbox_to_anchor=(0.5,-0.3), ncol=2, fancybox=True, shadow=True)
-# ax_straight.set_title("Rewarded Straightness - Finals Track")
+ax_straight.legend(loc='lower center', bbox_to_anchor=(0.5,-0.3), ncol=2, 
+                   fancybox=True, shadow=True)
 ax_straight.set_aspect('equal')
 plt.axis('off')
 
