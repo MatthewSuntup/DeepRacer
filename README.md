@@ -160,7 +160,7 @@ elif not go_fast and speed < SPEED_THRESHOLD:
     reward += 0.5  
 ```
 
-We've now defined multiple parameters for our reward function which will affect when the car is incentivised to go faster or slower. To determine what the best values of these are, it is useful to visualise their effect. Based on the track data provided by *, we developed our own visualisation tool ([qualifier_planner.py](planning/qualifier_planner.py)) which identifies regions of the track where the car is rewarded for going faster or slower.
+We've now defined multiple parameters for our reward function which will affect when the car is incentivised to go faster or slower. To determine what the best values of these are, it is useful to visualise their effect. Using the track data provided by the Autonomous Race Car Community's [waypoint-visualization](https://github.com/ARCC-RACE/waypoint-visualization) git repository , and again taking inspiration from the [Advanced Guide to AWS DeepRacer](https://towardsdatascience.com/an-advanced-guide-to-aws-deepracer-2b462c37eea) article, we developed our own visualisation tool ([qualifier_planner.py](planning/qualifier_planner.py)) which identifies regions of the track where our [reward_qualifier.py](reward/reward_qualifier.py) function will reward the car for going faster or slower.
 
 <p align="center">
 <img src="img/qualifier_planner.png" width=80%>
@@ -205,7 +205,7 @@ It was most effective to increase the speed of actions associated with slow spee
 </p>
 
 #### Iterating the reward function
-The reward function used for the qualifier remained suitable for this track in general. It was found that there was no need for the additional check used when calling the ```identify_corner()``` function to ensure we weren't looking too far ahead, as the waypoints for this track were spaced much more consistently.
+The reward function used for the qualifier was the basis for that of the finals track ([reward_final.py](rewards/reward_final.py)). Some modifications were made, including the removal of the distance check used when calling the ```identify_corner()``` function which ensured we weren't looking too far ahead, as the waypoints for this track were spaced much more consistently.
 
 ```python
 def select_speed(waypoints, closest_waypoints, future_step):
@@ -222,13 +222,13 @@ def select_speed(waypoints, closest_waypoints, future_step):
 
     return go_fast
 ```
-Again we used Python to visualise the application of the speed incentive and determine the parameters (see [final_planner.py](planning/final_planner.py)).
+The visualisation script was updated to reflect this change ([final_planner.py](planning/final_planner.py)) and again used to determine the parameters relating to the speed incentive.
 
 <p align="center">
 <img src="img/finals_speed_planner.png" width=80%>
 </p>
 
-We noticed that since over much of the course, the model was not actively being incentivised to go fast and straight (due to conservative parameters used for identifying corners), some swerving behaviour was emerging. This was addressed with the addition of a sub-reward for keeping steering angles within a bound. The condition for this to be applied used the same ```identify_corner()``` function that the speed sub-reward utilises, but with different parameters leading to the model to be incentivised to keep straight for a larger proportion of the track than when it is incentivised to go fast.
+We noticed that over much of the course, the model was not actively being incentivised to go fast and straight (due to conservative parameters used for identifying corners), and some swerving behaviour was emerging. This was addressed with the addition of a sub-reward for maintaining steering angles within a bounded range. The condition for this to be applied used the same ```identify_corner()``` function that the speed sub-reward utilises, but with different parameters. This allowed us to encourage straighter driving over regions of the track where we did not necessarily want to incentivise faster speeds.
 
 ```python
 def select_straight(waypoints, closest_waypoints, future_step):

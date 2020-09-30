@@ -8,8 +8,9 @@ TRACK_FILE = "ChampionshipCup2019_track.npy"
 FUTURE_STEP = 7
 MID_STEP = 4
 TURN_THRESHOLD = 10   # degrees
-DIST_THRESHOLD = 1.2    # metres
+DIST_THRESHOLD = 1.2  # metres
 
+# Colour macros
 FAST = 0
 SLOW = 1
 BONUS_FAST =  2

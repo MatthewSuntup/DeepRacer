@@ -6,15 +6,15 @@ TRACK_FILE = "Spain_track.npy"
 
 # Parameters for Speed Incentive
 FUTURE_STEP_SPEED = 6
-TURN_THRESHOLD_SPEED = 6    # degrees
+TURN_THRESHOLD_SPEED = 6        # degrees
 
 # Parameters for Straightness Incentive
 FUTURE_STEP_STRAIGHT = 8
 TURN_THRESHOLD_STRAIGHT = 25    # degrees
 
+# Colour macros
 FAST = 0
 SLOW = 1
-
 STRAIGHT = 0
 CURVE = 1
 
