@@ -17,9 +17,11 @@ This README provides an overview of how our team approached the University of Sy
 </p>
 
 ### Team
-- [Ashan Abey](https://github.com/ashton3000)
-- [Georgia Markham](https://github.com/georgiemarkham)
-- [Matthew Suntup](https://github.com/MatthewSuntup)
+<p align="center">
+<a href="https://www.linkedin.com/in/ashanabey01/"><img src="img/linkedin_profile_aa.png" width="30%"></a>
+<a href="https://www.linkedin.com/in/georgia-markham-37a905180/"><img src="img/linkedin_profile_gm.png" width="30%"></a>
+<a href="https://www.linkedin.com/in/matthewsuntup/"><img src="img/linkedin_profile_ms.png" width="30%"></a>
+</p>
 
 ### Contents
 - [About](#About)
