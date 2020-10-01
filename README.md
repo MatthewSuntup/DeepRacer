@@ -10,7 +10,7 @@
 </p>
 
 ## About
-This README provides an overview of how our team approached the University of Sydney's 2020 [AWS DeepRacer](https://aws.amazon.com/deepracer/) competition. This was a competition run by the School of Computer Science which provided teams with AWS credits to develop and train a DeepRacer model. Over the course of the model's development it was necessary to define an action space, develop a reward function for reinforcement learning, and experiment with various hyper-parameters controlling the underlying 3-layer neural network.
+This README provides an overview of how our team approached the University of Sydney's 2020 [AWS DeepRacer](https://aws.amazon.com/deepracer/) competition. This was a competition run by the School of Computer Science which provided teams with AWS credits to develop and train a DeepRacer model. Over the course of the model's development it was necessary to define an action space, develop a reward function for reinforcement learning, and experiment with various hyperparameters controlling the underlying 3-layer neural network.
 
 <p align="center">
 <img src="img/race.png" width="50%">
@@ -77,7 +77,7 @@ The sub-rewards can be seen in this code snippet from [reward_simple.py](reward/
   if abs(steering_angle) < 10 and speed > 2:
       reward += speed/max_speed
 ```
-Note that we chose to add sub-rewards rather than multiply them, based on the experience of Daniel Gonzalez shared in "[An Advanced Guide to AWS DeepRacer](https://towardsdatascience.com/an-advanced-guide-to-aws-deepracer-2b462c37eea)".
+We chose to add sub-rewards rather than multiply them, based on the experience of Daniel Gonzalez shared in "[An Advanced Guide to AWS DeepRacer](https://towardsdatascience.com/an-advanced-guide-to-aws-deepracer-2b462c37eea)".
 
 We realised that a linear incentive for staying near the centre of the track would be limiting for the vehicle when it would be faster to "cut" the curvature of a turn. So the linear centreline sub-reward was replaced by a quadratic one, which meant the reward was less sensitive to small movements away from the centreline:
 
@@ -125,7 +125,7 @@ def identify_corner(waypoints, closest_waypoints, future_step):
     return diff_heading, dist_future
 ```
 
-The `identify_corner()` function can be used to identify whether a corner exists between the car and a specified waypoint in the future. However, the spacing of waypoints is not consistent, so searching a constant number of waypoints ahead for a corner may cause the car to slow down unnecessarily when a corner is still far away. To mitigate this, after identifying a corner we check if it is within a minimum distance of the car. If not, the function is called again for a closer waypoint. We only use this method to check if a corner is too far away, as the identification of a far away straight almost always meant that the track prior was also straight due to both our method for identifying corners and the layout of this track.
+The `identify_corner()` function was used to identify whether a corner existed between the car and a specified waypoint in the future. However, the spacing of waypoints is not consistent, so searching a constant number of waypoints ahead for a corner risked causing the car to slow down unnecessarily if the corner was actually still far away. To mitigate this, after identifying a corner a check was implemented to determine if it is within a minimum distance of the car. If not, the function would be called again for a closer waypoint. We only ran this additional check to determine if an identified corner is so far away that there is still a straight portion of the track between the car and the corner. Due to our choice of parameters and the layout of this track, we found that if the `identify_corner()` function indicated that the track ahead was straight, the track between the car and the waypoint which was evaluated would generally also be straight even if the waypoints are spaced far apart.
 
 ```python
 def select_speed(waypoints, closest_waypoints, future_step, mid_step):
@@ -164,7 +164,7 @@ elif not go_fast and speed < SPEED_THRESHOLD:
     reward += 0.5  
 ```
 
-We've now defined multiple parameters for our reward function which will affect when the car is incentivised to go faster or slower. To determine what the best values of these are, it is useful to visualise their effect. Using the track data provided by the Autonomous Race Car Community's [waypoint-visualization](https://github.com/ARCC-RACE/waypoint-visualization) git repository , and again taking inspiration from the [Advanced Guide to AWS DeepRacer](https://towardsdatascience.com/an-advanced-guide-to-aws-deepracer-2b462c37eea) article, we developed our own visualisation tool ([qualifier_planner.py](planning/qualifier_planner.py)) which identifies regions of the track where our [reward_qualifier.py](reward/reward_qualifier.py) function will reward the car for going faster or slower.
+These functions refer to various parameters which affect when the car is incentivised to go faster or slower. To determine what the best values of these were, it was useful to visualise their effect. Using the track data provided by the Autonomous Race Car Community's [waypoint-visualization](https://github.com/ARCC-RACE/waypoint-visualization) git repository, and again taking inspiration from the [Advanced Guide to AWS DeepRacer](https://towardsdatascience.com/an-advanced-guide-to-aws-deepracer-2b462c37eea) article, we developed our own visualisation tool ([qualifier_planner.py](planning/qualifier_planner.py)) which identifies regions of the track where our [reward_qualifier.py](reward/reward_qualifier.py) function would reward the car for going faster or slower.
 
 <p align="center">
 <img src="img/qualifier_planner.png" width=80%>
@@ -175,7 +175,7 @@ The points labelled "Bonus Fast" show the effect of the additional distance chec
 #### Tuning Hyperparameters
 Tuning the hyperparameters of the neural network was crucial to ensuring the model was trained in a practical timeframe. Between training sessions, we would assess the reward graph and the Amazon Kinesis video stream of the evaluation runs to inform the modification of hyperparameters. Training sessions were between 45 minutes and 3 hours depending on the length of the track, stability of the most recent model, and hyperparameters chosen.
 
-The most significant indicator for tuning was the average percentage completion during evaluation (the red points in the reward graph). These represented how far the car progressed before driving off course during evaluation runs. Early in the training process, it was beneficial to prioritise exploration of the action space through faster learning. To achieve this we use greater values for the learning rate, and reduce the gradient descent batch size and number of epochs. The reward graph below shows an example of an early version of our qualifier model, using training parameters that encourage much faster learning. The large variations in the average percentage completion (during evaluation) are reflective of this approach.
+The most significant indicator for tuning was the average percentage completion during evaluation (the red points in the reward graph). These represented how far the car progressed before driving off course during evaluation runs. Early in the training process, it was beneficial to prioritise exploration of the action space through faster learning. To achieve this we used greater values for the learning rate, and reduced the gradient descent batch size and number of epochs. The reward graph below shows an example of an early version of our qualifier model, using training parameters that encouraged much faster learning. The large variations in the average percentage completion (during evaluation) are reflective of this approach.
 
 <p align="center">
 <img src="img/qualifier_reward_graph_fast.png" width=50%>
@@ -194,15 +194,15 @@ The finals track was the Circuit de Barcelona-Catalunya track, which consists of
 <img src="img/finals_track.png" width=40%>
 </p>
 
-For the qualifier, we exclusively used the AWS DeepRacer console to setup the action space, however, this only allows for barebone customisation options, enforcing a linear distribution of actions. One of the greatest drawbacks of this is the wasted actions involving high speeds and high steering angles (as these are almost never used, unless the maximum speed is set very low). Manually modifying the action space is detailed in Kire Galev's "[AWS DeepRacer Expert Boot Camp](https://www.youtube.com/watch?v=BUMbqn4NqQA&ab_channel=AWSDeepRacerCommunity)", and allows us to initialise the model with a linear space using a low max speed, and then increase the speeds of the actions with lower steering angles. Doing this forms a bell curve shape, which enables us to have fewer overall actions than a linear action space would have required for this track. The result of this is reduced training time, as the underlying neural network becomes smaller.
+For the qualifier, we exclusively used the AWS DeepRacer console to setup the action space, however, this only allows for barebone customisation options, enforcing a linear distribution of actions. One of the greatest drawbacks of this was the wasted actions involving high speeds and high steering angles (as these are almost never used, unless the maximum speed was set very low). Manually modifying the action space is detailed in Kire Galev's "[AWS DeepRacer Expert Boot Camp](https://www.youtube.com/watch?v=BUMbqn4NqQA&ab_channel=AWSDeepRacerCommunity)", and allowed us to initialise the model with a linear space using a low max speed, and then increase the speeds of the actions with lower steering angles. Doing this forms a bell curve shape, which enables us to have fewer overall actions than a linear action space would have required for this track. The result of this was reduced training time, as the underlying neural network was smaller.
 
-We found that it was best to train this model with the slow, linear action space until it could reliably complete the course, and then increase the speed of specific actions before training it further to learn how to adapt to the new speeds. Repeating this process allowed us to rapidly improve the race time of the model. The process required significant trial and error to gauge the limits of how much the action space can stably be modified between training. The modifications that were trained along the way (disregarding reverted attempts) are shown below.
+We found that it was best to train this model with the slow, linear action space until it could reliably complete the course, and then increase the speed of specific actions before training it further to learn how to adapt to the new speeds. Repeating this process allowed us to rapidly improve the race time of the model. The process required significant trial and error to gauge the limits of how much the action space could stably be modified between training. The modifications that were trained along the way (disregarding reverted attempts) are shown below.
 
 <p align="center">
 <img src="img/finals_action_space_mods.png" width=70%>
 </p>
 
-It was most effective to increase the speed of actions associated with slow speed and low steering angles, as these are only used when the vehicle is travelling straight and generally reflected the model being overly cautious. The action space of the model that was entered into the finals race is shown below.
+It was most effective to increase the speed of actions associated with slow speed and low steering angles, as these were only used when the vehicle was travelling straight and generally reflected the model being overly cautious. The action space of the model that was entered into the finals race is shown below.
 
 <p align="center">
 <img src="img/finals_action_space.png" width="70%">
@@ -232,7 +232,7 @@ The visualisation script was updated to reflect this change ([final_planner.py](
 <img src="img/finals_speed_planner.png" width=80%>
 </p>
 
-We noticed that over much of the course, the model was not actively being incentivised to go fast and straight (due to conservative parameters used for identifying corners), and some swerving behaviour was emerging. This was addressed with the addition of a sub-reward for maintaining steering angles within a bounded range. The condition for this to be applied used the same ```identify_corner()``` function that the speed sub-reward utilises, but with different parameters. This allowed us to encourage straighter driving over regions of the track where we did not necessarily want to incentivise faster speeds.
+The parameters determining when to incentivise faster speeds (visualised in the figure above) were chosen to be relatively conservative. However, this caused an issue because we were originally only incentivising straight driving (i.e. low steering angles) when faster speeds were also being incentivised. This resulted in swerving behaviour emerging throughout slower regions of the track. To address this, we added a sub-reward for maintaining steering angles within a bounded range. The condition for this to be applied used the same ```identify_corner()``` function that the speed sub-reward utilised, but with different parameters. This allowed us to encourage straighter driving over regions of the track where we did not necessarily want to incentivise faster speeds.
 
 ```python
 def select_straight(waypoints, closest_waypoints, future_step):
@@ -254,7 +254,7 @@ def select_straight(waypoints, closest_waypoints, future_step):
 <img src="img/finals_straight_planner.png" width=80%>
 </p>
 
-Finally, to push the model to achieve faster lap times, the sub-reward incentivising progress was also modified to try and achieve specific targets. Since, steps occur at a rate of 15Hz (representing each action taken by the model), we can set a ```TOTAL_NUM_STEPS``` parameter to a value corresponding to a specific desired lap time. We would modify this number as the car achieved better lap times, generally setting it to be slightly below that of its previous best lap time. In the final training sessions we were aiming for a 45 second lap, and so set this value to 675 steps.
+Finally, to push the model to achieve faster lap times, the sub-reward incentivising progress was also modified in an attempt to achieve specific targets. Since steps occur at a rate of 15Hz (representing each action taken by the model), we were able to set a ```TOTAL_NUM_STEPS``` parameter to a value corresponding to a specific desired lap time. We modified this number as the car achieved better lap times, generally setting it to be slightly below that of its previous best lap time. In the final training sessions we were aiming for a 45 second lap, and so set this value to 675 steps.
 
 ```python
 # Every 50 steps, if it's ahead of expected position, give reward relative
