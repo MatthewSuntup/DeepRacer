@@ -27,6 +27,8 @@ This README provides an overview of how our team approached the University of Sy
 - [Development](#Development)
   - [Qualifier Model](#Qualifier-Model)
   - [Finals Model](#Finals-Model)
+- [Conclusion](#Conclusion)
+- [Acknowledgments](#Acknowledgments)
 
 ## Results
 ### USYD 2020 Finals (1st Place)
@@ -259,3 +261,9 @@ if (steps % 50) == 0 and progress/100 > (steps/TOTAL_NUM_STEPS):
     # reward += 2.22 for each second faster than 45s projected
     reward += progress - (steps/TOTAL_NUM_STEPS)*100
 ```
+
+## Conclusion
+If nothing else, DeepRacer offers an exciting and fun application of machine learning. We all found this project to be an enjoyable activity to do alongside university studies and work commitments. While our team had a mix of past experiences with AWS and artificial intelligence, for all of us this was the first hands on experience we had with reinforcement learning algorithms. As is evident in the various articles referenced throughout this README, there's a lot more to explore in DeepRacer. If we do end up diving further into DeepRacer as hobby, I think we would all be keen to further leverage our familiarity with ROS and explore local training, as well as researching more into the inner workings of the training process.
+
+## Acknowledgments
+Our team would like to thank Zhiyong Wang from the University of Sydney for organising the competition, as well as Zoran Talesk and Jenny Davies from Amazon for their support throughout the development of our model.
