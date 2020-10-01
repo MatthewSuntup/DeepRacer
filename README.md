@@ -13,14 +13,14 @@
 This README provides an overview of how our team approached the University of Sydney's 2020 [AWS DeepRacer](https://aws.amazon.com/deepracer/) competition. This was a competition run by the School of Computer Science which provided teams with AWS credits to develop and train a DeepRacer model. Over the course of the model's development it was necessary to define an action space, develop a reward function for reinforcement learning, and experiment with various hyperparameters controlling the underlying 3-layer neural network.
 
 <p align="center">
-<img src="img/race.png" width="50%">
+<img src="img/fastest_lap.gif">
 </p>
 
 ### Team
 <p align="center">
-<a href="https://www.linkedin.com/in/ashanabey01/"><img src="img/linkedin_profile_aa.png" width="30%"></a>
-<a href="https://www.linkedin.com/in/georgia-markham-37a905180/"><img src="img/linkedin_profile_gm.png" width="30%"></a>
-<a href="https://www.linkedin.com/in/matthewsuntup/"><img src="img/linkedin_profile_ms.png" width="30%"></a>
+<a href="https://www.linkedin.com/in/ashanabey01/"><img src="img/linkedin_profile_aa.png" width="28%"></a>
+<a href="https://www.linkedin.com/in/georgia-markham-37a905180/"><img src="img/linkedin_profile_gm.png" width="28%"></a>
+<a href="https://www.linkedin.com/in/matthewsuntup/"><img src="img/linkedin_profile_ms.png" width="28%"></a>
 </p>
 
 ### Contents
