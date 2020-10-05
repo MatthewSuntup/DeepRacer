@@ -74,8 +74,8 @@ The sub-rewards can be seen in this code snippet from [reward_simple.py](reward/
   reward = 1 - distance_from_center/(track_width/2)
 
   # Reward going faster when the car isn't turning
-  if abs(steering_angle) < 10 and speed > 2:
-      reward += speed/max_speed
+  if abs(steering_angle) < STEERING_THRESHOLD and speed > SPEED_THRESHOLD:
+      reward += speed/SPEED_MAX
 ```
 We chose to add sub-rewards rather than multiply them, based on the experience of Daniel Gonzalez shared in "[An Advanced Guide to AWS DeepRacer](https://towardsdatascience.com/an-advanced-guide-to-aws-deepracer-2b462c37eea)".
 

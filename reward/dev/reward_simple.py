@@ -11,6 +11,11 @@ def reward_function(params):
     August 2020
     '''
     
+    # Parameters for speed incentive
+    STEERING_THRESHOLD = 10 # degrees
+    SPEED_THRESHOLD = 2     # m/s
+    SPEED_MAX = 4           # m/s (for normalisation)
+
     # Read input parameters
     all_wheels_on_track = params['all_wheels_on_track']
     distance_from_center = params['distance_from_center']
@@ -18,9 +23,6 @@ def reward_function(params):
     speed = params['speed']
     steering_angle = params['steering_angle']
     track_width = params['track_width']
-    
-    # Params
-    max_speed = 4
 
     # Strongly discourage going off track
     if not all_wheels_on_track or is_offtrack:
@@ -32,7 +34,7 @@ def reward_function(params):
     reward = 1 - distance_from_center/(track_width/2)
 
     # Reward going faster when the car isn't turning
-    if abs(steering_angle) < 10 and speed > 2:
-        reward += speed/max_speed
+    if abs(steering_angle) < STEERING_THRESHOLD and speed > SPEED_THRESHOLD:
+        reward += speed/SPEED_MAX
       
     return float(reward)
