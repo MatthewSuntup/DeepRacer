@@ -1,6 +1,17 @@
 def reward_function(params):
     '''
-    Our custom reward function
+    Reward function for AWS DeepRacer
+
+    This reward function was experimented with when we first considered using
+    waypoints to predict turns in the future. This function identifies 
+    corners by comparing the orientation of the track ahead to the current
+    heading of the vehicle, which we found was much less reliable than simply
+    comparing the orientation of the track ahead with the current track (which
+    we ended up implementing in reward_qualifier.py and reward_final.py).
+    
+    Team: IndestruciRacer
+    Authors: Matthew Suntup, Georgia Markham, Ashan Abey
+    August 2020
     '''
     
     import math

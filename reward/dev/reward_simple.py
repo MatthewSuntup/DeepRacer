@@ -1,6 +1,11 @@
 def reward_function(params):
     '''
     Reward function for AWS DeepRacer
+        
+    This reward function was used in the initial training of models to develop
+    a baseline driving ability. It rewards the vehicle staying towards the
+    centreline of the track and going faster while travelling straight.
+
     Team: IndestruciRacer
     Authors: Matthew Suntup, Georgia Markham, Ashan Abey
     August 2020

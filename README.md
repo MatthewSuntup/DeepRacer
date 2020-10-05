@@ -61,7 +61,7 @@ Initially, we trained the model on the much simpler Oval and Bowtie tracks using
 <img src="img/simple_tracks.png" width=80%>
 </p>
 
-The sub-rewards can be seen in this code snippet from [reward_simple.py](reward/reward_simple.py):
+The sub-rewards can be seen in this code snippet from [reward_simple.py](reward/dev/reward_simple.py):
 
 ```python
   # Strongly discourage going off track

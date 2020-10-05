@@ -1,4 +1,17 @@
 def reward_function(params):
+    '''
+    Reward function for AWS DeepRacer
+
+    This reward function was used on some of our initial models, in lieu of 
+    reward_simple.py. The function originates from Juv Chan's article, "Train a
+    Viable Model in 45 minutes for AWS DeepRacer Beginner Challenge Virtual
+    Community Race 2020", with the code itself a direct conglomerate of the AWS
+    DeepRacer example reward functions. 
+    
+    Team: IndestruciRacer
+    Authors: Georgia Markham, Matthew Suntup, Ashan Abey
+    August 2020
+    '''
 
     import math
 
