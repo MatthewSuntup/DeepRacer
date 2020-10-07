@@ -49,7 +49,9 @@ def reward_function(params):
     def select_speed(waypoints, closest_waypoints, future_step, mid_step):
 
         # Identify if a corner is in the future
-        diff_heading, dist_future = identify_corner(waypoints, closest_waypoints, future_step)
+        diff_heading, dist_future = identify_corner(waypoints, 
+                                                    closest_waypoints, 
+                                                    future_step)
 
         if diff_heading < TURN_THRESHOLD:
             # If there's no corner encourage going faster
@@ -60,7 +62,9 @@ def reward_function(params):
                 go_fast = False
             else:
                 # If the corner is far away, re-assess closer points
-                diff_heading_mid, dist_mid = identify_corner(waypoints, closest_waypoints, mid_step)
+                diff_heading_mid, dist_mid = identify_corner(waypoints, 
+                                                             closest_waypoints, 
+                                                             mid_step)
 
                 if diff_heading_mid < TURN_THRESHOLD:
                     # If there's no corner encourage going faster
